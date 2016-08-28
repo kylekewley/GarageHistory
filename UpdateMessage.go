@@ -1,15 +1,11 @@
 package main
 
 type UpdateMessage struct {
-    GarageID int
-    StatusChange string
-}
-
-type RequestUpdateMessage struct {
-    // Leave empty for all IDs
-    GarageIDs []int
+    DoorName string
+    Status string
+    Timestamp int64
 }
 
 func (message UpdateMessage) StatusValid() bool {
-    return message.StatusChange == "O" || message.StatusChange == "C"
+    return message.Status == "open" || message.Status == "closed"
 }

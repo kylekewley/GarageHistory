@@ -33,24 +33,6 @@ func SubscribeToTopics(cli *client.Client, db *sql.DB, requestTopic string, upda
     return err
 }
 
-func RequestInitialStatus(cli *client.Client, sensorRequestTopic string) error {
-    // Leave GarageIDs empty for all doors request
-    request := RequestUpdateMessage{
-        GarageIDs: []int{},
-    }
-
-    message,err := json.Marshal(request)
-    if err != nil { return err }
-
-    err = cli.Publish(&client.PublishOptions{
-        QoS:    mqtt.QoS2,
-        TopicName: []byte(sensorRequestTopic),
-        Message: []byte(message),
-    })
-
-    return err
-}
-
 func ConnectToBroker(host string, port int) (*client.Client, error) {
     // Create an MQTT Client.
     cli := client.New(&client.Options{
@@ -81,7 +63,7 @@ func HandleUpdateMessage(db *sql.DB, topicName string, message []byte) {
     }
 
     if !update.StatusValid() {
-        log.Errorf("Invalid status received: '%s'", update.StatusChange)
+        log.Errorf("Invalid status received: '%s'", update.Status)
         return
     }
 

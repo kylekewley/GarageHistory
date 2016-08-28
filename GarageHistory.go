@@ -56,12 +56,6 @@ func main() {
     var databasePath string
     flag.StringVar(&databasePath, "d", "./GarageHistory.db", "The path to the "+
                     "sqlite database storing the history")
-
-    // Update Request topic
-    var updateRequestTopic string
-    flag.StringVar(&updateRequestTopic, "s", "home/garage/door/request", "The topic "+
-                    "that the garage sensor is listening on for current status values")
-
     // Parse additional arguments here...
 
     // Do the actual parsing
@@ -119,9 +113,6 @@ func main() {
         os.Exit(ErrorSubscribing)
     }
     log.Debugf("Subscribed to topics '%s' and '%s'", requestTopic, updateTopic)
-
-    // Request the current status from the sensors
-    err = RequestInitialStatus(cli, updateRequestTopic)
 
     if err != nil {
         log.Errorf("Unable to send status request message. "+

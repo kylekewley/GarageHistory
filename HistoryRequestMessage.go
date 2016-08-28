@@ -29,7 +29,7 @@ func (message HistoryRequestMessage) Valid() error {
 }
 
 type HistoryResponse struct {
-    GarageID int
-    UnixTimestamp time.Time
-    StatusChange string
+    DoorName string
+    Timestamp time.Time
+    Status string
 }

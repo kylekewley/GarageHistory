@@ -15,8 +15,8 @@ const COLUMN_STATUS_CHANGE = "status"
 func CreateHistoryTableIfNeeded(db *sql.DB) error {
     // Build the sql statement for creating the table
     sqlStmt := "create table if not exists " + HISTORY_TABLE_NAME + " (id integer not null primary key, " +
-    COLUMN_GARAGE_ID + " integer not null, " + COLUMN_TIMESTAMP + " timestamp default CURRENT_TIMESTAMP not null, " +
-    COLUMN_STATUS_CHANGE + " text check( "+COLUMN_STATUS_CHANGE+" in ('O','C') ) not null);"
+    COLUMN_GARAGE_ID + " text not null, " + COLUMN_TIMESTAMP + " timestamp default CURRENT_TIMESTAMP not null, " +
+    COLUMN_STATUS_CHANGE + " text check( "+COLUMN_STATUS_CHANGE+" in ('open','closed') ) not null);"
 
     log.Debugf("Create table statement:\n'%s'", sqlStmt);
 
@@ -32,8 +32,8 @@ func WriteHistoryEvent(db *sql.DB, update UpdateMessage) error {
     if err != nil { return err }
 
     // Prepare the statement
-    strStmt := fmt.Sprintf("insert into %s (%s, %s) values (?, ?)",
-                HISTORY_TABLE_NAME, COLUMN_GARAGE_ID, COLUMN_STATUS_CHANGE)
+    strStmt := fmt.Sprintf("insert into %s (%s, %s, %s) values (?, ?, ?)",
+                HISTORY_TABLE_NAME, COLUMN_GARAGE_ID, COLUMN_STATUS_CHANGE, COLUMN_TIMESTAMP)
     log.Debugf("Preparing history string statement: '%s'", strStmt)
 
     stmt, err := tx.Prepare(strStmt)
@@ -42,7 +42,7 @@ func WriteHistoryEvent(db *sql.DB, update UpdateMessage) error {
     defer stmt.Close()
 
     // execute the statement with the correct values
-    _, err = stmt.Exec(update.GarageID, update.StatusChange)
+    _, err = stmt.Exec(update.DoorName, update.Status, update.Timestamp)
     if err != nil { return err }
 
     err = tx.Commit()
@@ -87,14 +87,14 @@ func QueryHistoryEvents(db *sql.DB, request HistoryRequestMessage) ([]HistoryRes
     var events = make([]HistoryResponse, 0)
 
     for rows.Next() {
-        var garageID int
+        var garageID string
         var status string
         var timestamp time.Time
 
         err = rows.Scan(&garageID, &status, &timestamp)
         if err != nil { return nil,err }
 
-        response := HistoryResponse{ GarageID: garageID, UnixTimestamp: timestamp, StatusChange: status }
+        response := HistoryResponse{ DoorName: garageID, Timestamp: timestamp, Status: status }
 
         events = append(events, response)
     }
