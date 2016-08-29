@@ -55,8 +55,8 @@ func QueryHistoryEvents(db *sql.DB, request HistoryRequestMessage) ([]UpdateMess
     // Prepare the select statement
     var strStmt string
 
-    strStmt = fmt.Sprintf("SELECT %s,%s,%s FROM %s WHERE %s BETWEEN ? AND ?",
-            COLUMN_GARAGE_ID, COLUMN_STATUS_CHANGE, COLUMN_TIMESTAMP, HISTORY_TABLE_NAME, COLUMN_TIMESTAMP)
+    strStmt = fmt.Sprintf("SELECT %s,%s,%s FROM %s WHERE %s BETWEEN ? AND ? ORDER BY %s DESC",
+            COLUMN_GARAGE_ID, COLUMN_STATUS_CHANGE, COLUMN_TIMESTAMP, HISTORY_TABLE_NAME, COLUMN_TIMESTAMP, COLUMN_TIMESTAMP)
 
     // Only get the most recent value
     if request.CurrentValue == true {
