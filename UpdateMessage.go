@@ -3,7 +3,7 @@ package main
 type UpdateMessage struct {
     DoorName string
     Status string
-    Timestamp int64
+    LastChanged int64
 }
 
 func (message UpdateMessage) StatusValid() bool {

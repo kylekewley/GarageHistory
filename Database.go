@@ -42,7 +42,7 @@ func WriteHistoryEvent(db *sql.DB, update UpdateMessage) error {
     defer stmt.Close()
 
     // execute the statement with the correct values
-    _, err = stmt.Exec(update.DoorName, update.Status, update.Timestamp)
+    _, err = stmt.Exec(update.DoorName, update.Status, update.LastChanged)
     if err != nil { return err }
 
     err = tx.Commit()
@@ -55,7 +55,7 @@ func QueryHistoryEvents(db *sql.DB, request HistoryRequestMessage) ([]HistoryRes
     // Prepare the select statement
     var strStmt string
 
-    strStmt = fmt.Sprintf("SELECT %s,%s,%s FROM %s WHERE %s BETWEEN datetime(?, 'unixepoch') AND datetime(?, 'unixepoch')",
+    strStmt = fmt.Sprintf("SELECT %s,%s,%s FROM %s WHERE %s BETWEEN ? AND ?",
             COLUMN_GARAGE_ID, COLUMN_STATUS_CHANGE, COLUMN_TIMESTAMP, HISTORY_TABLE_NAME, COLUMN_TIMESTAMP)
 
     // Only get the most recent value
