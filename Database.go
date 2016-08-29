@@ -42,7 +42,7 @@ func WriteHistoryEvent(db *sql.DB, update UpdateMessage) error {
     defer stmt.Close()
 
     // execute the statement with the correct values
-    _, err = stmt.Exec(update.DoorName, update.Status, update.LastChanged)
+    _, err = stmt.Exec(update.DoorName, update.Status, update.Timestamp)
     if err != nil { return err }
 
     err = tx.Commit()
