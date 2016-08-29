@@ -1,7 +1,6 @@
 package main
 
 import (
-    "time"
     "errors"
 )
 
@@ -28,8 +27,3 @@ func (message HistoryRequestMessage) Valid() error {
     return nil
 }
 
-type HistoryResponse struct {
-    DoorName string
-    Timestamp time.Time
-    Status string
-}

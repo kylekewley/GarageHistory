@@ -2,8 +2,8 @@ package main
 
 import (
     "fmt"
-    "time"
     "database/sql"
+    "time"
     _ "github.com/mattn/go-sqlite3"
 )
 const HISTORY_TABLE_NAME = "garage_history"
@@ -51,7 +51,7 @@ func WriteHistoryEvent(db *sql.DB, update UpdateMessage) error {
     return nil
 }
 
-func QueryHistoryEvents(db *sql.DB, request HistoryRequestMessage) ([]HistoryResponse, error) {
+func QueryHistoryEvents(db *sql.DB, request HistoryRequestMessage) ([]UpdateMessage, error) {
     // Prepare the select statement
     var strStmt string
 
@@ -84,7 +84,7 @@ func QueryHistoryEvents(db *sql.DB, request HistoryRequestMessage) ([]HistoryRes
     if err != nil { return nil,err }
 
     // Store records in a slice
-    var events = make([]HistoryResponse, 0)
+    var events = make([]UpdateMessage, 0)
 
     for rows.Next() {
         var garageID string
@@ -94,7 +94,7 @@ func QueryHistoryEvents(db *sql.DB, request HistoryRequestMessage) ([]HistoryRes
         err = rows.Scan(&garageID, &status, &timestamp)
         if err != nil { return nil,err }
 
-        response := HistoryResponse{ DoorName: garageID, Timestamp: timestamp, Status: status }
+        response := UpdateMessage{ DoorName: garageID, Timestamp: timestamp.Unix(), Status: status }
 
         events = append(events, response)
     }
