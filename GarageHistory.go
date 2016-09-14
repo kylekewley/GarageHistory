@@ -7,6 +7,7 @@ import (
     "database/sql"
     _ "github.com/mattn/go-sqlite3"
     "github.com/op/go-logging"
+    "github.com/kylekewley/gmq/mqtt/client"
 )
 
 var log = logging.MustGetLogger("log")
@@ -103,29 +104,26 @@ func main() {
     log.Debugf("Created tables successfully")
 
     //// Connect to the Broker
-    cli, err := ConnectToBroker(hostname, *port, username, password)
+    cli, err := ConnectToBroker(hostname, *port, username, password, func(cli *client.Client) {
+      log.Debugf("Successfully connected to MQTT broker %s:%i", hostname, *port)
 
-    // Make sure the connection went smoothly
-    if err != nil {
-        log.Criticalf("Fatal error connecting to MQTT Broker: %s", err)
-        os.Exit(ErrorConnecting)
-    }
-    log.Debugf("Successfully connected to MQTT broker %s:%i", hostname, *port)
+      // Subscribe to the request and update topics that we need to listen to
+      err = SubscribeToTopics(cli, db, requestTopic, updateTopic)
 
-    // Subscribe to the request and update topics that we need to listen to
-    err = SubscribeToTopics(cli, db, requestTopic, updateTopic)
-
-    // Make sure we subscribed to topics okay
-    if err != nil {
+      // Make sure we subscribed to topics okay
+      if err != nil {
         log.Criticalf("Fatal Error subscribing to topics: %s", err)
         os.Exit(ErrorSubscribing)
-    }
-    log.Debugf("Subscribed to topics '%s' and '%s'", requestTopic, updateTopic)
+      }
+      log.Debugf("Subscribed to topics '%s' and '%s'", requestTopic, updateTopic)
+    })
 
-    if err != nil {
-        log.Errorf("Unable to send status request message. "+
-        "The current door status could be incorrect: %s", err)
-    }
+      // Make sure the connection went smoothly
+      if err != nil {
+        log.Criticalf("Fatal error connecting to MQTT Broker: %s", err)
+        os.Exit(ErrorConnecting)
+      }
+
 
     ////////////////////////////////////////////////////////
     // Set up channel on which to send signal notifications.

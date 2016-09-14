@@ -4,8 +4,8 @@ import (
     "fmt"
     "database/sql"
     "encoding/json"
-    "github.com/yosssi/gmq/mqtt"
-    "github.com/yosssi/gmq/mqtt/client"
+    "github.com/kylekewley/gmq/mqtt"
+    "github.com/kylekewley/gmq/mqtt/client"
 )
 
 /* Broker code */
@@ -33,13 +33,14 @@ func SubscribeToTopics(cli *client.Client, db *sql.DB, requestTopic string, upda
     return err
 }
 
-func ConnectToBroker(host string, port int, username string, password string) (*client.Client, error) {
+func ConnectToBroker(host string, port int, username string, password string, successHandler func(*client.Client)) (*client.Client, error) {
     // Create an MQTT Client.
     cli := client.New(&client.Options{
         ErrorHandler: func(err error) {
             log.Errorf("MQTT client error: %s", err)
         },
-    })
+        ConnectHandler: successHandler,
+      })
 
     options := &client.ConnectOptions{
         Network:  "tcp",
