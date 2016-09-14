@@ -42,6 +42,14 @@ func main() {
     var hostname string
     flag.StringVar(&hostname, "h", "localhost", "The hostname of the MQTT broker")
 
+    // MQTT Username
+    var username string
+    flag.StringVar(&username, "U", "", "The username used to connect to the MQTT broker")
+
+    //MQTT Password
+    var password string
+    flag.StringVar(&password, "P", "", "The password used to connect to the MQTT broker")
+
     // Update topic. This is the topic where garage status updates are received
     var updateTopic string
     flag.StringVar(&updateTopic, "u", "home/garage/door/update",
@@ -95,7 +103,7 @@ func main() {
     log.Debugf("Created tables successfully")
 
     //// Connect to the Broker
-    cli, err := ConnectToBroker(hostname, *port)
+    cli, err := ConnectToBroker(hostname, *port, username, password)
 
     // Make sure the connection went smoothly
     if err != nil {

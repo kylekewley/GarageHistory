@@ -33,7 +33,7 @@ func SubscribeToTopics(cli *client.Client, db *sql.DB, requestTopic string, upda
     return err
 }
 
-func ConnectToBroker(host string, port int) (*client.Client, error) {
+func ConnectToBroker(host string, port int, username string, password string) (*client.Client, error) {
     // Create an MQTT Client.
     cli := client.New(&client.Options{
         ErrorHandler: func(err error) {
@@ -41,13 +41,20 @@ func ConnectToBroker(host string, port int) (*client.Client, error) {
         },
     })
 
-    // Connect to the MQTT Server.
-    err := cli.Connect(&client.ConnectOptions{
+    options := &client.ConnectOptions{
         Network:  "tcp",
         Address:  fmt.Sprintf("%s:%d", host, port),
         ClientID: []byte("GarageHistoryServer"),
-    })
+    }
 
+    // Only set the username if not empty
+    if len(username) > 0 {
+        options.UserName = username
+        options.Password = password
+    }
+
+    // Connect to the MQTT Server.
+    err := cli.Connect(options)
 
     return cli, err
 }
