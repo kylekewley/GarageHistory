@@ -49,8 +49,8 @@ func ConnectToBroker(host string, port int, username string, password string) (*
 
     // Only set the username if not empty
     if len(username) > 0 {
-        options.UserName = username
-        options.Password = password
+        options.UserName = []byte(username)
+        options.Password = []byte(password)
     }
 
     // Connect to the MQTT Server.
